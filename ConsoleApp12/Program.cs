@@ -3,6 +3,8 @@ using System.Reflection.Metadata.Ecma335;
 
 class Program
 {
+    
+    static List<ConsoleCharacter> savedContent = new List<ConsoleCharacter>(99);
     static void DrawEdges()
     {
         Console.SetCursorPosition(0, 0);
@@ -49,8 +51,8 @@ class Program
     {
         ConsoleKeyInfo gombInfo;
         int választottGomb = 0;
-        string[] gombok = { " Létrehozás", "Szerkeszt", " Mentés", " Kilépés" };
-        int gombSzélesség = 16;
+        string[] gombok = { "Létrehozás", " Szerkesztés", "Kilépés" };
+        int gombSzélesség = 15;
         int gombMagasság = 3;
 
        
@@ -91,10 +93,17 @@ class Program
                 case ConsoleKey.Enter:
                     if(választottGomb == 0)
                     {
+                        savedContent.Clear();
                         ClearButtons(gombok.Length, gombSzélesség, gombMagasság, gombKezdésY, centerX);
                         isRunning = false;
                     }
-                    else if(választottGomb == 3)
+                    else if (választottGomb == 1)
+                    {
+                        ClearButtons(gombok.Length, gombSzélesség, gombMagasság, gombKezdésY, centerX);
+                        isRunning = false;
+                        LoadContent();
+                    }
+                    else if(választottGomb == 2)
                     {
                         Environment.Exit(0);
                     }
@@ -111,6 +120,7 @@ class Program
         Console.SetCursorPosition(0, gombKezdésY + gombok.Length * (gombMagasság + 1));
         Console.CursorVisible = true;
     }
+
 
     static void DrawButtons(string[] gombok, int választottGomb, int gombSzélesség, int gombMagasság, int startY, int centerX)
     {
@@ -151,12 +161,44 @@ class Program
         }     
     }
 
-   
+    class ConsoleCharacter
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public char Karakter { get; set; }
+        public ConsoleColor Szín { get; set; }
+    }
+
+    static void SaveCharacter(int x, int y, string character, ConsoleColor color)
+    {
+        
+        savedContent.Add(new ConsoleCharacter
+        {
+            X = x,
+            Y = y,
+            Karakter = character[0],
+            Szín = color
+        });
+        
+    }
+
+    static void LoadContent()
+    {
+        Console.Clear();
+        DrawEdges(); 
+
+        foreach (var item in savedContent)
+        {
+            Console.SetCursorPosition(item.X, item.Y);
+            Console.ForegroundColor = item.Szín;
+            Console.Write(item.Karakter);
+        }
+    }
     static void ClearButtons(int gombokSzáma, int gombSzélesség, int gombMagasság, int startY, int centerX)
     {
         for (int i = 0; i < gombokSzáma; i++)
         {
-   
+
             for (int j = 0; j < gombMagasság; j++)
             {
                 Console.SetCursorPosition(centerX, startY + i * (gombMagasság + 1) + j);
@@ -164,7 +206,6 @@ class Program
             }
         }
     }
-
 
     static string CenterText(string text, int szélesség)
     {
@@ -176,55 +217,84 @@ class Program
         int x = Console.WindowWidth / 2;
         int y = Console.WindowHeight / 2;
         ConsoleKeyInfo gombInfo;
-        ConsoleColor[] szinek = new ConsoleColor[]
-        {
-            ConsoleColor.Red,
-            ConsoleColor.Green,
-            ConsoleColor.Blue,
-            ConsoleColor.Yellow,
-            ConsoleColor.Cyan,
-            ConsoleColor.Magenta,
-            ConsoleColor.White
-        };
-        int jelenlegiSzín = 0;
-
         string jelenlegiKarakter = "█";
-       
+        string szín = "White";
 
         DrawEdges();
 
         ButtonNavigation();
 
-        while (true)
-        {
-       
-            // A karakter színváltozása
-            Console.ForegroundColor = szinek[jelenlegiSzín];
 
-            // Egy "█" rajzolása a porzícióban
+        bool IsRunningDrawing = true;
+
+
+        while (IsRunningDrawing)
+        {
+            
+            Console.SetCursorPosition(Console.WindowLeft + 2, 1);
+            Console.WriteLine($"A karaktered: {jelenlegiKarakter}");
+            Console.SetCursorPosition(Console.WindowLeft + 2, 3);
+            Console.Write($"A szined: {szín}");
             Console.SetCursorPosition(x, y);
             
 
-            // Gomb lenyomás 
+ 
             gombInfo = Console.ReadKey(true);
-
-            // Mozgás és karakterváltás
+            
+    
             switch (gombInfo.Key)
             {
                 case ConsoleKey.UpArrow:
-                    if (y > 0) y--;
+                    if (y > 0)
+                    {
+                        y--;
+                    }
                     break;
                 case ConsoleKey.DownArrow:
-                    if (y < Console.WindowHeight - 1) y++;
+                    if (y < Console.WindowHeight - 1)
+                    {
+                        y++;
+                    }
                     break;
                 case ConsoleKey.LeftArrow:
-                    if (x > 0) x--;
+                    if (x > 0)
+                    {
+                        x--;
+                    }
                     break;
                 case ConsoleKey.RightArrow:
-                    if (x < Console.WindowWidth - 1) x++;
+                    if (x < Console.WindowWidth - 1)
+                    {
+                        x++;
+                    }
                     break;
-                case ConsoleKey.D:
-                    jelenlegiKarakter = "█";
+                case ConsoleKey.D1:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    szín = ConsoleColor.Red.ToString();
+                    break;
+                case ConsoleKey.D2:
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    szín = ConsoleColor.Green.ToString();
+                    break;
+                case ConsoleKey.D3:
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    szín = ConsoleColor.Blue.ToString();
+                    break;
+                case ConsoleKey.D4:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    szín = ConsoleColor.Yellow.ToString();
+                    break;
+                case ConsoleKey.D5:
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    szín = ConsoleColor.Cyan.ToString();
+                    break;
+                case ConsoleKey.D6:
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    szín = ConsoleColor.Magenta.ToString();
+                    break;
+                case ConsoleKey.D7:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    szín = ConsoleColor.White.ToString();
                     break;
                 case ConsoleKey.D8:
                     jelenlegiKarakter = "▓";
@@ -235,26 +305,26 @@ class Program
                 case ConsoleKey.D0:
                     jelenlegiKarakter = "░";
                     break;
+                case ConsoleKey.D:
+                    jelenlegiKarakter = "█";
+                    break;
                 case ConsoleKey.Spacebar:
                     Console.Write(jelenlegiKarakter);
+                    SaveCharacter(x, y, jelenlegiKarakter, Console.ForegroundColor);
                     break;
-                
                 case ConsoleKey.Escape:
+                    IsRunningDrawing = false;
                     Console.Clear();
                     Console.ForegroundColor = ConsoleColor.White;
                     DrawEdges();
                     ButtonNavigation();
                     break;
-            }
-            // Szinek asszociálása a számokhoz
-            if (gombInfo.Key >= ConsoleKey.D1 && gombInfo.Key <= ConsoleKey.D7)
-            {
-                int választottSzám = gombInfo.Key - ConsoleKey.D1 + 1;
-
-                for (int i = 1; i <= választottSzám; i++)
-                {
-                    jelenlegiSzín = (i - 1) % szinek.Length;
-                }
+                case ConsoleKey.M:
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.White;
+                    DrawEdges();
+                    ButtonNavigation();
+                    break;
             }
         }
     }
